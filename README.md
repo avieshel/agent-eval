@@ -35,7 +35,7 @@ deno run --allow-env --allow-net --allow-read cli.ts repl
 - `PROVIDER_MAX_TOKENS` (default 2048)
 - `PROVIDER_TIMEOUT_MS` (default 120000)
 
-Also loads `.env`, `.env.local`, `.env.functions.local` from the working directory.
+Also loads `.env` and `.env.*` (e.g. `.env.local`) from the working directory.
 
 ## API keys and secrets
 
@@ -49,7 +49,7 @@ Do not commit API keys. Recommended options:
 - A password manager / secret manager that injects the environment variable, e.g.
   `PROVIDER_API_KEY="$(pass show agent-eval)" deno task serve`
 
-`.env`, `.env.local`, `.env.functions.local`, and common secret files are gitignored.
+`.env` and `.env.*` files, plus common secret files, are gitignored.
 Run `deno task doctor` to verify the configured endpoint and model are reachable.
 
 

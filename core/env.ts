@@ -22,7 +22,7 @@ export function parseEnvFile(contents: string): Record<string, string> {
 }
 
 export function loadLocalEnv(path?: string): string[] {
-  const candidates = path ? [path] : ['.env', '.env.local', '.env.functions.local']
+  const candidates = path ? [path] : ['.env', '.env.local']
   const applied: string[] = []
   for (const p of candidates) {
     let contents: string

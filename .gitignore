@@ -1,6 +1,5 @@
 # Local secrets / environment
 .env
-.env.local
-.env.functions.local
+.env.*
 *.key
 secrets/
