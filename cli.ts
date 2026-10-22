@@ -203,6 +203,11 @@ async function cmdDoctor(): Promise<number> {
     return 1
   }
 
+  if (!keyFile && config.apiKey && config.apiKey !== 'ollama') {
+    console.log('Tip: the API key is currently loaded from the environment or a .env file (plain text).')
+    console.log('      For stronger protection, use PROVIDER_API_KEY_FILE or a secret manager.')
+  }
+
   const result = await checkProvider(config)
   if (!result.ok) {
     console.error(`FAIL: ${result.message}`)

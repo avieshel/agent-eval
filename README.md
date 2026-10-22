@@ -80,7 +80,7 @@ working directory. Values already present in the environment take precedence.
 
 ## API keys and secrets
 
-Please do not commit API keys. A few safer options:
+Please avoid storing API keys in plain text whenever possible. A `.env` file is convenient, but it is still plain text on disk. For better protection, prefer one of these alternatives:
 
 - Set the key at runtime:
 
@@ -107,6 +107,8 @@ Please do not commit API keys. A few safer options:
   ```bash
   PROVIDER_API_KEY="$(pass show agent-eval)" deno task serve
   ```
+
+Even though `.env` files are gitignored, they remain readable on disk. If your key grants access to a paid or sensitive service, the protected file or secret-manager options above are recommended.
 
 `.env` and `.env.*` files, along with common secret files, are gitignored.
 Run `deno task doctor` to verify that the configured endpoint and model are
