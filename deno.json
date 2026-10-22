@@ -1,0 +1,11 @@
+{
+  "tasks": {
+    "check": "deno check cli.ts",
+    "test": "deno test --allow-env=PROVIDER_TIMEOUT_MS,PROVIDER_MAX_TOKENS,AGENT_DEBUG",
+    "serve": "deno run --allow-env --allow-net --allow-read cli.ts serve",
+    "run": "deno run --allow-env --allow-net --allow-read cli.ts run",
+    "eval": "deno run --allow-env --allow-net --allow-read cli.ts eval",
+    "repl": "deno run --allow-env --allow-net --allow-read cli.ts repl",
+    "doctor": "deno run --allow-env --allow-net --allow-read cli.ts doctor"
+  }
+}

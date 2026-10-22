@@ -1,0 +1,6 @@
+# Local secrets / environment
+.env
+.env.local
+.env.functions.local
+*.key
+secrets/
