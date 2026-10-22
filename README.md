@@ -1,79 +1,153 @@
 # Agent Eval
 
-A generic, project-agnostic CLI + web UI for fast, cheap feedback loops on the
-non-deterministic (LLM) parts of an agentic system. Completely decoupled from
-any project or database: prompts and outputs are passed directly as arguments
-or files.
+A small, friendly CLI and web UI for fast, low-cost feedback loops on the
+non-deterministic (LLM) parts of an agentic system.
+
+It is intentionally generic and project-agnostic: prompts and outputs are passed
+directly as arguments or files, with no database or project coupling.
+
+## Quick start
+
+From the project directory:
+
+```bash
+deno task serve
+```
+
+Then open `http://127.0.0.1:8799` in your browser.
+
+To check that your setup can reach the configured model:
+
+```bash
+deno task doctor
+```
 
 ## Usage
 
+### Web UI
+
 ```bash
-cd utils/prompt-lab
+deno task serve
+```
 
-# Web UI
-deno task serve                                    # http://127.0.0.1:8799
+### One-shot run
 
-deno task doctor                                   # validate .env / LLM connectivity
+```bash
+deno run --allow-env --allow-net --allow-read cli.ts run \
+  --system "You are helpful." \
+  --user "Hi"
+```
 
-# One-shot run
-deno run --allow-env --allow-net --allow-read cli.ts run --system "You are helpful." --user "Hi"
-deno run --allow-env --allow-net --allow-read cli.ts run --system-file sys.txt --user-file prompt.txt
-deno run --allow-env --allow-net --allow-read cli.ts run --system-file sys.txt --user-file prompt.txt --json
+```bash
+deno run --allow-env --allow-net --allow-read cli.ts run \
+  --system-file sys.txt \
+  --user-file prompt.txt
+```
 
-# Eval batch
+```bash
+deno run --allow-env --allow-net --allow-read cli.ts run \
+  --system-file sys.txt \
+  --user-file prompt.txt \
+  --json
+```
+
+### Eval batch
+
+```bash
 deno run --allow-env --allow-net --allow-read cli.ts eval cases.json
+```
 
-# Interactive REPL (editable prompts + llm config)
+### Interactive REPL
+
+```bash
 deno run --allow-env --allow-net --allow-read cli.ts repl
 ```
 
-## Environment (llm config)
+The REPL lets you edit prompts and LLM settings interactively.
 
-- `PROVIDER_BASE_URL` (default `http://127.0.0.1:11434/v1`)
-- `PROVIDER_API_KEY` (default `ollama`)
-- `PROVIDER_MODEL` (required)
-- `PROVIDER_MAX_TOKENS` (default 2048)
-- `PROVIDER_TIMEOUT_MS` (default 120000)
+## Environment (LLM config)
 
-Also loads `.env` and `.env.*` (e.g. `.env.local`) from the working directory.
+| Variable | Default | Notes |
+| --- | --- | --- |
+| `PROVIDER_BASE_URL` | `http://127.0.0.1:11434/v1` | OpenAI-compatible endpoint |
+| `PROVIDER_API_KEY` | `ollama` | API key, if required |
+| `PROVIDER_MODEL` | _(required)_ | Model name to use |
+| `PROVIDER_MAX_TOKENS` | `2048` | Maximum response tokens |
+| `PROVIDER_TIMEOUT_MS` | `120000` | Request timeout in milliseconds |
+
+The tool also loads `.env` and `.env.*` files (for example `.env.local`) from the
+working directory. Values already present in the environment take precedence.
 
 ## API keys and secrets
 
-Do not commit API keys. Recommended options:
+Please do not commit API keys. A few safer options:
 
-- Environment variable at runtime:
-  `PROVIDER_API_KEY=... deno task serve`
-- A protected key file (mode `600`) referenced by path:
-  `PROVIDER_API_KEY_FILE=/path/to/secret.key deno task serve`
-  Create it with `install -m 600 /dev/null ~/.config/agent-eval.key` and write the key into it.
-- A password manager / secret manager that injects the environment variable, e.g.
-  `PROVIDER_API_KEY="$(pass show agent-eval)" deno task serve`
+- Set the key at runtime:
 
-`.env` and `.env.*` files, plus common secret files, are gitignored.
-Run `deno task doctor` to verify the configured endpoint and model are reachable.
+  ```bash
+  PROVIDER_API_KEY=... deno task serve
+  ```
 
+- Use a protected key file (mode `600`) and reference it by path:
+
+  ```bash
+  PROVIDER_API_KEY_FILE=/path/to/secret.key deno task serve
+  ```
+
+  You can create such a file with:
+
+  ```bash
+  install -m 600 /dev/null ~/.config/agent-eval.key
+  ```
+
+  Then write your key into it.
+
+- Or let a password manager inject it:
+
+  ```bash
+  PROVIDER_API_KEY="$(pass show agent-eval)" deno task serve
+  ```
+
+`.env` and `.env.*` files, along with common secret files, are gitignored.
+Run `deno task doctor` to verify that the configured endpoint and model are
+reachable.
 
 ## Eval cases (JSON)
 
 ```json
 [
-  { "id": "greet", "systemPrompt": "Reply JSON {answer}.", "prompt": "2+2?", "contains": ["4"] }
+  {
+    "id": "greet",
+    "systemPrompt": "Reply JSON {answer}.",
+    "prompt": "2+2?",
+    "contains": ["4"]
+  }
 ]
 ```
 
-Fields: `systemPrompt`/`systemPromptFile`, `prompt`/`promptFile`, `contains`,
-`notContains`, `jsonPath: { path, equals }`.
+Supported fields:
+
+- `systemPrompt` / `systemPromptFile`
+- `prompt` / `promptFile`
+- `context` / `contextFile`
+- `contains`
+- `notContains`
+- `jsonPath: { path, equals }`
 
 ## Extra context
 
-Pass static context (retrieved rows, tool outputs, etc.) without executing tools:
+You can pass static context, such as retrieved rows or tool outputs, without
+executing any tools:
 
 ```bash
 deno run --allow-env --allow-net --allow-read cli.ts run \
-  --system-file sys.txt --user-file prompt.txt --context-file context.txt
+  --system-file sys.txt \
+  --user-file prompt.txt \
+  --context-file context.txt
 ```
 
-In eval cases use `"context"` or `"contextFile"`. In the web UI use the **Extra context** box.
+In eval cases, use `"context"` or `"contextFile"`. In the web UI, use the
+**Extra context** box.
 
 ## CI usage
 
@@ -82,5 +156,5 @@ deno run --allow-env --allow-net --allow-read cli.ts eval cases.json
 echo "exit code: $?"
 ```
 
-Prompts and expected checks live in version-controlled JSON files; no database
-or project coupling required.
+Prompts and expected checks can live in version-controlled JSON files. There is
+no database or project coupling required.
