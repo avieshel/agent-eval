@@ -6,6 +6,28 @@ non-deterministic (LLM) parts of an agentic system.
 It is intentionally generic and project-agnostic: prompts and outputs are passed
 directly as arguments or files, with no database or project coupling.
 
+## Get started fast (optional aliases)
+
+If you use this tool often, a couple of shell aliases make it much nicer to use.
+These keep environment access limited to `PROVIDER_*` variables:
+
+```bash
+# bash / zsh
+alias agent-eval='deno run --allow-env="PROVIDER_*" --allow-net --allow-read cli.ts'
+```
+
+Then, from the project directory:
+
+```bash
+agent-eval serve
+agent-eval doctor
+agent-eval run --system "You are helpful." --user "Hi"
+```
+
+If you keep the project somewhere else, replace `cli.ts` with the full path to it.
+For stricter setups, you can also scope `--allow-net` and `--allow-read` to the
+hosts and folders you actually need.
+
 ## Quick start
 
 From the project directory:
