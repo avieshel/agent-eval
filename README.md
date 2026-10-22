@@ -160,3 +160,23 @@ echo "exit code: $?"
 
 Prompts and expected checks can live in version-controlled JSON files. There is
 no database or project coupling required.
+
+### Permissions in CI
+
+The flags are required because Deno is secure by default:
+
+- `--allow-env` reads `PROVIDER_*` configuration.
+- `--allow-net` calls the LLM endpoint.
+- `--allow-read` loads `.env` files and any prompt/case/context files.
+
+For tighter CI security, you can scope them to exactly what the job needs:
+
+```bash
+deno run \
+  --allow-env=PROVIDER_BASE_URL,PROVIDER_API_KEY,PROVIDER_MODEL,PROVIDER_MAX_TOKENS,PROVIDER_TIMEOUT_MS \
+  --allow-net=your-llm-host:443 \
+  --allow-read=./cases.json,./prompts   cli.ts eval cases.json
+```
+
+If your CI injects secrets through the environment, prefer that over a
+plain-text `.env` file.
